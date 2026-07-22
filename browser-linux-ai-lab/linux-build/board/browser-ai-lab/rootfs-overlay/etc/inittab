@@ -1,0 +1,8 @@
+# Inittab for Browser Linux AI Lab
+::sysinit:/etc/init.d/rcS
+::ctrlaltdel:/sbin/reboot
+::shutdown:/bin/umount -a -r
+
+# Auto-login root on serial console (ttyS0)
+# -n: don't ask for login, -l: use this as login shell
+ttyS0::respawn:/sbin/getty -n -l /bin/bash -L 115200 ttyS0 vt100

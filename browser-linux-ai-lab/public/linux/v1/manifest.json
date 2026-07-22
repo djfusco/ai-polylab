@@ -1,0 +1,10 @@
+{
+  "version": "v1",
+  "kernel": "/linux/v1/bzImage",
+  "filesystem": "/linux/v1/rootfs.cpio.gz",
+  "wasm": "/linux/v1/v86.wasm",
+  "bios": "/linux/v1/seabios.bin",
+  "vgaBios": "/linux/v1/vgabios.bin",
+  "libv86": "/linux/v1/libv86.js",
+  "builtAt": "2026-07-22T00:41:24Z"
+}

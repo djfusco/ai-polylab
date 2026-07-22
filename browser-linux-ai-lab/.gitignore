@@ -1,0 +1,44 @@
+# --- Dependencies ---
+node_modules/
+
+# --- Next.js build output ---
+.next/
+out/
+
+# --- Environment files ---
+# .env.example is intentionally committed; all others are NOT.
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# --- Linux build artifacts (generated intermediates, NOT public assets) ---
+# The final artifacts in public/linux/v1/ SHOULD be committed so Vercel can serve them.
+# Only exclude the build workspace / generated intermediates.
+linux-build/generated/
+
+# --- Editor / OS ---
+.DS_Store
+*.pem
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- Vercel ---
+.vercel
+
+# --- TypeScript ---
+*.tsbuildinfo
+next-env.d.ts
+
+# --- Vitest coverage ---
+coverage/
+
+# --- Misc ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js

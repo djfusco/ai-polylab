@@ -1,0 +1,12 @@
+# /etc/profile - browser-ai-lab
+export PS1='student@ailab:\w$ '
+export HOME=/root
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Start in lab directory
+cd /root/lab
+
+# Show lab instructions on login
+if [ -f /root/lab/README.txt ]; then
+  cat /root/lab/README.txt
+fi
