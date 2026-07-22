@@ -105,6 +105,33 @@ Respond ONLY with valid JSON matching this schema:
 }`;
 
 /* ----------------------------------------------------------------
+   Transcript sanitiser
+   ---------------------------------------------------------------- */
+
+/**
+ * Strip ANSI/VT escape sequences, null bytes, and other terminal
+ * control characters from raw serial output so the AI receives
+ * clean plain text instead of colour codes and cursor sequences.
+ */
+function sanitiseTranscript(raw: string): string {
+  return raw
+    // ANSI escape sequences: ESC [ ... (final byte A-Za-z)
+    .replace(/\x1b\[[0-9;]*[A-Za-z]/g, '')
+    // Other ESC sequences (ESC followed by a single char)
+    .replace(/\x1b./g, '')
+    // Null bytes
+    .replace(/\x00/g, '')
+    // Carriage returns (keep newlines)
+    .replace(/\r/g, '')
+    // Non-printable control chars except newline/tab
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\x01-\x08\x0b-\x0c\x0e-\x1f\x7f]/g, '')
+    // Collapse runs of blank lines to at most two
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/* ----------------------------------------------------------------
    User message builder
    ---------------------------------------------------------------- */
 
@@ -154,8 +181,10 @@ function buildUserMessage(request: AssistantRequest): string {
   if (!request.recentTranscript || request.recentTranscript.trim() === '') {
     lines.push('No terminal output recorded yet.');
   } else {
-    // Hard-cap in case validation was too lenient
-    const transcript = request.recentTranscript.slice(-12_000);
+    // Strip ANSI codes / control chars, then hard-cap length
+    const transcript = sanitiseTranscript(
+      request.recentTranscript.slice(-12_000)
+    );
     lines.push(transcript);
   }
 

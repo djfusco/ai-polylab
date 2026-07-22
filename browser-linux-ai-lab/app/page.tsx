@@ -223,10 +223,14 @@ export default function LabPage() {
      Serial output from v86 → xterm + buffer
      ================================================================ */
   const handleSerialOutput = useCallback((data: string) => {
-    // Write raw bytes/escape sequences to the visible terminal
-    terminalHandleRef.current?.write(data);
-    // Accumulate in buffer for AI context
+    // Accumulate in buffer first — always record regardless of terminal state
     getBuffer().addOutput(data);
+    // Write raw bytes/escape sequences to the visible terminal
+    try {
+      terminalHandleRef.current?.write(data);
+    } catch {
+      // ignore xterm write errors (e.g. terminal disposed during hot reload)
+    }
   }, []); // refs are stable — no deps needed
 
   /* ================================================================
