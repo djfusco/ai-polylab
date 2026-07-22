@@ -121,6 +121,9 @@ const MANIFEST: LinuxManifest = {
 /** Soft cap on AI interactions retained in state (memory). */
 const MAX_INTERACTIONS = 20;
 
+/** Seconds of command inactivity before auto-hint fires. */
+const AUTO_HINT_DELAY_MS = 45_000;
+
 /* ----------------------------------------------------------------
    Handle type exposed by LinuxTerminal via its onMount callback
    ---------------------------------------------------------------- */
@@ -171,6 +174,14 @@ export default function LabPage() {
 
   /** Guard: prevent duplicate VM initialisation under React Strict Mode. */
   const vmInitialisedRef = useRef(false);
+
+  /**
+   * Stable ref to the latest askAssistant so the auto-hint timer can call it
+   * without being included in the effect deps (avoids timer restart on loading
+   * state changes).
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const askAssistantRef = useRef<(...args: any[]) => void>(() => {});
 
   /* ---- Lazy-initialise TerminalBuffer ------------------------ */
   // TerminalBuffer has no browser-only APIs — safe to import statically.
@@ -373,7 +384,7 @@ export default function LabPage() {
           mode,
           hintLevel,
           question,
-          objective:       LAB_OBJECTIVE,
+          objective: includeObjective ? LAB_OBJECTIVE : undefined,
           recentCommands:  state.commands.slice(-50),
           recentTranscript: state.transcript.slice(-12_000),
           hintUsage:       hintHistoryRef.current.slice(-20),
@@ -441,8 +452,26 @@ export default function LabPage() {
         setAssistantLoading(false);
       }
     },
-    [assistantLoading], // re-create only when loading state changes
+    [assistantLoading, includeObjective],
   );
+
+  // Keep ref current so auto-hint timer always calls the latest version
+  useEffect(() => {
+    askAssistantRef.current = askAssistant;
+  }, [askAssistant]);
+
+  /* ================================================================
+     Auto-hints effect
+     Fires a nudge after AUTO_HINT_DELAY_MS of command inactivity.
+     Resets whenever commandCount changes (user ran a command).
+     ================================================================ */
+  useEffect(() => {
+    if (!autoHintsEnabled || vmStatus !== 'ready' || commandCount === 0) return;
+    const timer = setTimeout(() => {
+      askAssistantRef.current('hint', 'nudge');
+    }, AUTO_HINT_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [commandCount, autoHintsEnabled, vmStatus]);
 
   /* ================================================================
      Public assistant entry points (passed as props)
