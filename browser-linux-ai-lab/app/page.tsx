@@ -72,6 +72,11 @@ const ConsentModal = dynamic(
   { ssr: false },
 );
 
+const HelpModal = dynamic(
+  () => import('@/components/HelpModal'),
+  { ssr: false },
+);
+
 /* ----------------------------------------------------------------
    Constants
    ---------------------------------------------------------------- */
@@ -141,6 +146,7 @@ export default function LabPage() {
   /* ---- Core UI state ----------------------------------------- */
   const [consented, setConsented]             = useState(false);
   const [terminalReady, setTerminalReady]     = useState(false);
+  const [helpOpen, setHelpOpen]               = useState(false);
   const [vmStatus, setVmStatus]               = useState<VmStatus>('not-started');
   const [bootProgress, setBootProgress]       = useState('');
   const [downloadProgress, setDownloadProgress] = useState<{
@@ -554,6 +560,7 @@ export default function LabPage() {
         onRestart={handleRestart}
         onClearTranscript={handleClearTranscript}
         onToggleAutoHints={handleToggleAutoHints}
+        onShowHelp={() => setHelpOpen(true)}
       />
 
       {/* ---- Two-column content area --------------------------- */}
@@ -597,6 +604,11 @@ export default function LabPage() {
         <ConsentModal
           onConsent={handleConsent}
         />
+      )}
+
+      {/* ---- Help modal ---------------------------------------- */}
+      {helpOpen && (
+        <HelpModal onClose={() => setHelpOpen(false)} />
       )}
     </main>
   );

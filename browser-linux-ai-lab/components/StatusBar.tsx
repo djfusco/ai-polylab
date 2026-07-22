@@ -11,6 +11,7 @@ interface StatusBarProps {
   onRestart: () => void;
   onClearTranscript: () => void;
   onToggleAutoHints: () => void;
+  onShowHelp: () => void;
 }
 
 interface StatusConfig {
@@ -65,6 +66,7 @@ export default function StatusBar({
   onRestart,
   onClearTranscript,
   onToggleAutoHints,
+  onShowHelp,
 }: StatusBarProps) {
   const config = STATUS_CONFIG[vmStatus];
   const showProgress =
@@ -184,6 +186,16 @@ export default function StatusBar({
             aria-pressed={autoHintsEnabled}
           >
             Auto hints: {autoHintsEnabled ? 'ON' : 'OFF'}
+          </button>
+
+          {/* Help button */}
+          <button
+            className="statusbar-btn"
+            onClick={onShowHelp}
+            title="How to use this lab"
+            aria-label="Open help"
+          >
+            ? Help
           </button>
 
           {/* Privacy indicator */}
